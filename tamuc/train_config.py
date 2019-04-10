@@ -60,13 +60,13 @@ train_command = 'gcloud ml-engine jobs submit training "{job_id}" \
     --staging-bucket "{bucket}" \
     --region us-central1 \
     --runtime-version=1.10 \
-    --scale-tier basic-gpu\
     -- \
     --output_path "{gcs_path}/training/first_try" \
     --eval_data_paths "{gcs_path}/preproc/eval*" \
-    --train_data_paths "{gcs_path}/preproc/train*"' \
+    --train_data_paths "{gcs_path}/preproc/train*" \
+    --verbosity debug' \
     .format(job_id=GCLOUD_JOB_ID, bucket=GCLOUD_BUCKET, gcs_path=GCLOUD_GCS_PATH)
-
+# --scale-tier basic-gpu\
 os.system(train_command)
 
 # # Models do not need a default version, but its a great way move your production
