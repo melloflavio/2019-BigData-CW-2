@@ -1,0 +1,2 @@
+# Auto detect text files and ensure LF line endings to work properly in terminal env
+* text eol=lf
