@@ -6,18 +6,19 @@ import datetime
 timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
 
-# Custom scale tier
-architectures_to_train = [
-    {'description':"standard_16", 'machine':"n1-standard-16"},
-    {'description':"highmem_16", 'machine':"n1-highmem-16"},
-    {'description':"highcpu_16", 'machine':"n1-highcpu-16"},
+# Preset scale tiers
+tiers_to_train = [
+    "basic",
+    "basic_gpu",
+    "standard_1",
+    "premium_1",
+    # "basic_tpu", # Disabled, training job not configured to use TPUs
 ]
 
-for arch in architectures_to_train:
+# Send a different training job for each preset
+for scale_tier in tiers_to_train:
 
-    test_name=arch['description']
-    machine=arch['machine']
-    job_id='{}_{}'.format(test_name, timestamp)
+    job_id='{}_{}'.format(scale_tier, timestamp)
     train_command = 'gcloud beta ml-engine jobs submit training "{job_id}" \
         --stream-logs \
         --module-name trainer.task \
@@ -25,12 +26,11 @@ for arch in architectures_to_train:
         --staging-bucket "{bucket}" \
         --region us-central1 \
         --runtime-version=1.10 \
-        --scale-tier=custom \
-        --master-machine-type={machine} \
+        --scale-tier={scale_tier} \
         -- \
         --output_path "{gcs_path}/{job_id}" \
         --eval_data_paths "{gcs_path}/preproc/test*" \
         --train_data_paths "{gcs_path}/preproc/train*" \
         --label_count=18' \
-        .format(job_id=job_id, bucket=GCLOUD_BUCKET, gcs_path=GCLOUD_GCS_PATH, machine=machine)
+        .format(job_id=job_id, bucket=GCLOUD_BUCKET, gcs_path=GCLOUD_GCS_PATH, scale_tier=scale_tier)
     os.system(train_command)
