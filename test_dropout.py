@@ -6,17 +6,19 @@ import datetime
 timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
 
-# Custom scale tier
-architectures_to_train = [
-    {'description':"standard_16", 'machine':"n1-standard-16"},
-    {'description':"highmem_16", 'machine':"n1-highmem-16"},
-    {'description':"highcpu_16", 'machine':"n1-highcpu-16"},
+dropouts_archs_to_train = [
+    {'description':"0_0", 'dropout':0},
+    {'description':"0_2", 'dropout':0.2},
+    {'description':"0_4", 'dropout':0.4},
+    {'description':"0_6", 'dropout':0.6},
+    {'description':"0_8", 'dropout':0.8},
+    {'description':"1_0", 'dropout':1},
 ]
 
-# Send a different training job for each architecture
-for arch in architectures_to_train:
-    test_name=arch['description']
-    machine=arch['machine']
+# Send a different training job for each dropout to be tested
+for dropout_arch in dropouts_archs_to_train:
+    test_name=dropout_arch['description']
+    dropout=dropout_arch['dropout']
     job_id='{}_{}'.format(test_name, timestamp)
     train_command = 'gcloud beta ml-engine jobs submit training "{job_id}" \
         --stream-logs \
@@ -25,12 +27,12 @@ for arch in architectures_to_train:
         --staging-bucket "{bucket}" \
         --region us-central1 \
         --runtime-version=1.10 \
-        --scale-tier=custom \
-        --master-machine-type={machine} \
+        --scale-tier=basic \
         -- \
         --output_path "{gcs_path}/{job_id}" \
         --eval_data_paths "{gcs_path}/preproc/test*" \
         --train_data_paths "{gcs_path}/preproc/train*" \
-        --label_count=18' \
-        .format(job_id=job_id, bucket=GCLOUD_BUCKET, gcs_path=GCLOUD_GCS_PATH, machine=machine)
+        --label_count=18 \
+        --dropout={dropout}' \
+        .format(job_id=job_id, bucket=GCLOUD_BUCKET, gcs_path=GCLOUD_GCS_PATH, dropout=dropout)
     os.system(train_command)
