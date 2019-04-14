@@ -7,12 +7,10 @@ timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
 
 dropouts_archs_to_train = [
-    {'description':"dropout_0_0", 'dropout':0},
     {'description':"dropout_0_2", 'dropout':0.2},
     {'description':"dropout_0_4", 'dropout':0.4},
     {'description':"dropout_0_6", 'dropout':0.6},
     {'description':"dropout_0_8", 'dropout':0.8},
-    {'description':"dropout_1_0", 'dropout':1},
 ]
 
 # Send a different training job for each dropout to be tested
